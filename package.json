@@ -1,0 +1,31 @@
+{
+  "name": "tut_react_ts_webpack",
+  "version": "1.0.0",
+  "description": "Tutorial of how to develop a react SPA with typescript and webpack.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Useurmind/tut_react_ts_webpack.git"
+  },
+  "author": "Jochen Grün <jochen.gruen2@mhp.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Useurmind/tut_react_ts_webpack/issues"
+  },
+  "homepage": "https://github.com/Useurmind/tut_react_ts_webpack#readme",
+  "devDependencies": {
+    "typescript": "^3.3.3333",
+    "webpack": "^4.29.6",
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.1.14"
+  },
+  "dependencies": {
+    "http-server": "^0.11.1",
+    "local-web-server": "^2.6.1",
+    "react": "^16.8.4",
+    "react-dom": "^16.8.4"
+  }
+}
