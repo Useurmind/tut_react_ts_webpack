@@ -6,6 +6,7 @@
   "scripts": {
     "build": "webpack-cli",
     "watch": "webpack-cli --watch",
+    "start": "nodemon -w ./webpack.config.js -w ./tsconfig.json --exec webpack-dev-server -- --https",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.2",
+    "nodemon": "^1.18.10",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.6",

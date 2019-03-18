@@ -1,6 +1,8 @@
 # Developing a SPA React application with typescript and webpack
 
-## Init npm
+## Setting up a typescript project for development with react and webpack
+
+### Init npm
 
 Make sure node and npm are installed:
 
@@ -55,7 +57,7 @@ About to write to C:\Entwicklung\Projekte\Github\tut_react_ts_webpack\package.js
 Is this OK? (yes)
 ```
 
-## Generate an SSL certificate for localhost (not required)
+### Generate an SSL certificate for localhost (not required)
 
 https://ram.k0a1a.net/self-signed_https_cert_after_chrome_58
 
@@ -78,7 +80,7 @@ Download OpenSSL (> 1.1.0) and install it. Check that it is available in your co
     # generate localhost cert
     openssl x509 -req -in localhost.csr -CA localhost_rootCA.pem -CAkey localhost_rootCA.key -CAcreateserial -out localhost.crt -days 3650 -sha256 -extfile v3.ext
 
-## Setup small website
+### Setup small website
 
 Create an initial set of files:
 
@@ -105,7 +107,7 @@ ReactDOM.render(
   );
 ```
 
-## Run the initial website with some webserver
+### Run the initial website with some webserver
 
 Install a webserver
 
@@ -125,11 +127,11 @@ Check that chrome allows the connection now
 Check output is Hello World.
 Look in the developer tools how the page is loaded.
 
-# Commit your changes
+### Commit your changes
 
 One step done and working, please commit your changes.
 
-## Install typescript, react types
+### Install typescript, react types
 
 Nice but ugly and small.
 
@@ -157,7 +159,7 @@ This will add the following dev dependencies to your `package.json` file as foll
   }
 ```
 
-## Initialize the typescript project
+### Initialize the typescript project
 
 Initialize the typescript project by executing:
 
@@ -274,7 +276,7 @@ Look at output in `src/index.js`.
 
 Open browser and navigate to page. Look for error in console.
 
-## Initial webpack usage
+### Initial webpack usage
 
 Problem is that we do not have a way to load modules yet. You need some sort of module loader to work properly with typescript.
 Therefore, install webpack:
@@ -316,7 +318,7 @@ __index.html__:
 
 Note that we do not need the script tags anymore. Its all in the app bundle now.
 
-## Setup webpack configuration
+### Setup webpack configuration
 
 Always using this command line is not very nice to use. We will add a file `webpack.config.js`:
 
@@ -345,7 +347,7 @@ Change something in `index.tsx` compile it and see that it will automatically be
 
 Pretty tedious to always execute tsc and webpack separately.
 
-## Setup typescript compilation in webpack
+### Setup typescript compilation in webpack
 
 To enable typescript compilation directly from webpack we need to include a typescript loader e.g. `ts-loader`:
 
@@ -383,5 +385,94 @@ Add some npm commands for the given command lines.
 
 __package.json__
 ```json
-
+    "scripts": {
+        "build": "webpack-cli",
+        "watch": "webpack-cli --watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
 ```
+
+### Use webpack dev server
+
+Currently we are using local web server and webpack cli separately. Combine this into using webpack dev server.
+Stop local web server and start webpack dev server:
+
+    npx webpack-dev-server
+
+Forgot https:
+
+    npx webpack-dev-server --https
+
+Change something and check that it is upgraded after refresh.
+Not upgraded why? 
+Delete app.bundle.js from dist. Page is now throwing an error.
+
+Access https://localhost:8080/webpack-dev-server to see that app.bundle.js is served from root folder.
+
+Configure dev server to serve webpack output from dist folder:
+
+__webpack.config.js__:
+```javascript
+    // ...
+
+    devServer: {
+        publicPath: "/dist/",
+    },
+
+    // ...
+```
+
+See that pages automatically refreshes after update.
+
+### Debugging source code
+
+Open the `app.bundle.js` in chrome source. You cannot really debug it because its big and contains a lot of code.
+
+Configure webpack to server source maps.
+
+https://webpack.js.org/configuration
+
+__webpack.config.js__:
+```javascript
+    // ...
+
+    devtool: "inline-source-map"
+
+    // ...
+```
+
+Source map for `index.tsx` looks like javascript code. Configure tsconfig to output source map files.
+
+__tsconfig.json__
+```json
+{
+    "compilerOptions": {
+        // ...
+        "sourceMap": true,
+        // ...
+    }
+}
+```
+
+Btw. configure nodemon to watch changes of `webpack.config.js` and `tsconfig.json` restart dev server.
+
+    npm install --save-dev nodemon
+
+    npx nodemon -w .\webpack.config.js --exec "npx webpack-dev-server --https"
+
+Task: Add this as npm script.
+
+Open chrome source again and see still javascript.
+Set the webpack mode to development.
+
+__webpack.config.js__:
+```javascript
+    // ...
+
+    mode: "development"
+
+    // ...
+```
+
+## Using the rfluxx framework
+

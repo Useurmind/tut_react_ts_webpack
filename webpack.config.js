@@ -14,7 +14,14 @@ module.exports = {
             { test: /\.tsx?$/, loader: "ts-loader" }
         ]
     },
+    
+    devServer: {
+        publicPath: "/dist/",
+    },
 
+    devtool: "inline-source-map",
+
+    mode: "development",
     output: {
         filename: "app.bundle.js",
         path: path.resolve(__dirname, "dist")
