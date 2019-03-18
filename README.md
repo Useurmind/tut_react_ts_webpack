@@ -274,7 +274,7 @@ Look at output in `src/index.js`.
 
 Open browser and navigate to page. Look for error in console.
 
-# Initial webpack usage
+## Initial webpack usage
 
 Problem is that we do not have a way to load modules yet. You need some sort of module loader to work properly with typescript.
 Therefore, install webpack:
@@ -315,3 +315,73 @@ __index.html__:
 ```
 
 Note that we do not need the script tags anymore. Its all in the app bundle now.
+
+## Setup webpack configuration
+
+Always using this command line is not very nice to use. We will add a file `webpack.config.js`:
+
+__webpack.config.js__
+```javascript
+var path = require("path");
+
+module.exports = {
+    entry: "./src/index.js",
+    output: {
+        filename: "app.bundle.js",
+        path: path.resolve(__dirname, "dist")
+    }
+}
+```
+
+This does the same as before and you can just execute:
+
+    npx webpack-cli
+
+See it everything works again. Now start webpack in watch mode
+
+    npx webpack-cli --watch
+
+Change something in `index.tsx` compile it and see that it will automatically be bundled.
+
+Pretty tedious to always execute tsc and webpack separately.
+
+## Setup typescript compilation in webpack
+
+To enable typescript compilation directly from webpack we need to include a typescript loader e.g. `ts-loader`:
+
+    npm i --save-dev ts-loader
+
+Configure the typescript loader in the `webpack.config.js`:
+
+```javascript
+module.exports = {
+    // ...
+
+    resolve: {
+        // Add `.ts` and `.tsx` as a resolvable extension.
+        extensions: [".ts", ".tsx", ".js"]
+    },
+
+    module: {
+        rules: [
+            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+            { test: /\.tsx?$/, loader: "ts-loader" }
+        ]
+    },
+
+    // ...
+}
+```
+
+Execute webpack in watch modus:
+
+    npx webpack-cli --watch
+
+Perform some changes and see that everything is automatically updated after a refresh.
+
+Add some npm commands for the given command lines.
+
+__package.json__
+```json
+
+```
