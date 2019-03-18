@@ -1,9 +1,11 @@
 import * as React from "react";
-import { StoreSubscription } from "rfluxx";
+import { ObservableFetcher, StoreSubscription } from "rfluxx";
 
 import { CounterStore, ICounterStore, ICounterStoreState } from "../store/CounterStore";
 
-const store = new CounterStore({});
+const store = new CounterStore({
+    fetcher: new ObservableFetcher()
+});
 
 export interface IIncrementorState
 {
