@@ -1,7 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
+import { MyFirstComponent } from "./components/MyFirstComponent";
+
 ReactDOM.render(
-  <span>Hello World 7</span>,
+  <MyFirstComponent greeting="Hello team!"/>,
   document.getElementById('root')
 );

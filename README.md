@@ -476,3 +476,217 @@ __webpack.config.js__:
 
 ## Using the rfluxx framework
 
+### Install rfluxx
+
+We will be using the rfluxx framework to show how the flux pattern that is popular with react can be implemented.
+
+    npm i --save-dev rfluxx
+
+### Create first component
+
+Create your first component:
+
+__src/components/MyFirstComponent.tsx__
+```typescript
+import * as React from "react";
+
+export interface IMyFirstComponentState
+{
+
+}
+
+export interface IMyFirstComponentProps
+{
+    greeting: string;
+}
+
+export class MyFirstComponent extends React.Component<IMyFirstComponentProps, IMyFirstComponentState> 
+{
+    constructor(props: IMyFirstComponentProps)
+    {
+        super(props);
+
+        this.state = {
+
+        };
+    }
+
+    public render(): any
+    {
+        return <div>
+            MyFirstComponent is here.
+            {this.props.greeting}
+        </div>;
+    }
+}
+```
+
+__src/index.tsx__
+```typescript
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
+import { MyFirstComponent } from "./components/MyFirstComponent";
+
+ReactDOM.render(
+  <MyFirstComponent greeting="Hello team!"/>,
+  document.getElementById('root')
+);
+```
+
+### Control state with a store
+
+Make state vanish
+
+__src/components/ComponentSwitch.tsx__
+```typescript
+import * as React from "react";
+
+export interface IComponentSwitchState
+{
+    activeComponentIndex: number;
+}
+
+export interface IComponentSwitchProps
+{
+    childTitles: string[];
+}
+
+export class ComponentSwitch implements React.Component<IComponentSwitchProps, IComponentSwitchState> 
+{
+    constructor(props: IComponentSwitchProps)
+    {
+        super(props);
+
+        this.state = {
+            activeComponentIndex: null
+        };
+    }
+
+    private handlePageSelect(x): void
+    {
+        this.setState({
+            ...this.state,
+            activeComponentIndex: x.target.value
+        });
+    }
+
+    public render(): any
+    {
+        return <div>
+            <div>
+            <span>Select page</span>
+            <select value={this.state.activeComponentIndex} onChange={x => this.handlePageSelect(x)}>
+            {
+                this.props.childTitles.map((x, i) => {
+                    return <option value={i}>{x}</option>
+                })
+            }
+            </select>
+            </div>
+            <div>
+                { this.state.activeComponentIndex != null && this.children[this.state.activeComponentIndex] }
+            </div>
+        </div>;
+    }
+}
+```
+
+__src/components/Incrementor.tsx__
+```typescript
+import * as React from "react";
+
+export interface IIncrementorState
+{
+    currentCount: number;
+}
+
+export interface IIncrementorProps
+{
+    initialCount: number;
+}
+
+export class Incrementor implements React.Component<IIncrementorProps, IIncrementorState> 
+{
+    constructor(props: IIncrementorProps)
+    {
+        super(props);
+
+        this.state = {
+            currentCount: props.initialCount
+        };
+    }
+
+    private handleIncrement(x): void
+    {
+        this.setState({
+            ...this.state,
+            currentCount: this.state.currentCount + x.target.value
+        });
+    }
+
+    public render(): any
+    {
+        return <div>
+            <div>Current count: {this.state.currentCount}</div>
+            <div>
+                <button onClick={x => this.handleIncrement(x)}>Increment</button>
+            </div>
+        </div>;
+    }
+}
+```
+
+__src/components/app.tsx__
+```typescript
+import * as React from "react";
+
+import { MyFirstComponent } from "./MyFirstComponent";
+import { Incrementor } from "./Incrementor";
+import { ComponentSwitch } from "./ComponentSwitch";
+
+export interface IAppState
+{
+    
+}
+
+export interface IAppProps
+{
+    
+}
+
+export class App implements React.Component<IAppProps, IAppState> 
+{
+    constructor(props: IAppProps)
+    {
+        super(props);
+
+        this.state = {
+        };
+    }
+
+    private handlePageSelect(x): void
+    {
+        this.setState({
+            ...this.state,
+            activeComponentIndex: x.target.value
+        });
+    }
+
+    public render(): any
+    {
+        const titles = [
+            "My First Component"
+        ]
+
+        return <ComponentSwitch>
+           <MyFirstComponent greeting="Hello Team!" />
+           <Incrementor initialCount={0} />
+        </ComponentSwitch>;
+    }
+}
+```
+
+Show how state is preserved using a store
+
+### Fetch 
