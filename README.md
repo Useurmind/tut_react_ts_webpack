@@ -129,36 +129,31 @@ Look in the developer tools how the page is loaded.
 
 One step done and working, please commit your changes.
 
-## Install typescript, react and webpack in your project
+## Install typescript, react types
 
 Nice but ugly and small.
 
-- No modules used actually
+- No javacscript modules used
 - No type checking
 - No jsx used
 
-To scale we need some additional stuff.
+To scale we need some additional stuff. We will start with typescript
 
-Install typescript and webpack as dev dependencies
+Install typescript dev dependencies
 
-    npm i --save-dev typescript webpack webpack-cli webpack-dev-server
+    npm i --save-dev typescript
 
-Install react and react-dom as dependencies
+Install react and react-dom types as dev dependencies
 
-    npm i --save react react-dom
+    npm i --save-dev @types/react @types/react-dom    
 
-This will add the dependencies to your `package.json` file as follows:
+This will add the following dev dependencies to your `package.json` file as follows:
 
 ```json
   "devDependencies": {
     "typescript": "^3.3.3333",
-    "webpack": "^4.29.6",
-    "webpack-cli": "^3.2.3",
-    "webpack-dev-server": "^3.1.14"
-  },
-  "dependencies": {
-    "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "@types/react": "^16.8.8",
+    "@types/react-dom": "^16.8.2",
   }
 ```
 
@@ -233,7 +228,62 @@ A `tsconfig.json` similar to this will be created:
 }
 ```
 
+As we want to be able to compile a jsx file we need to configure it similar to this
+
+```json
+{
+  "compilerOptions": {
+    "target": "es5",                         
+    "moduleResolution": "node",
+    "module": "es2015",
+    "jsx": "react", 
+
+    "strict": true,
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
+```
+
+This means:
+
+- Output is placed beside the source files
+- tsx files will be compiled for react
+- find the dependencies using node resolution strategy
+  
+Change `index.js` to `index.tsx` and make the following changes:
+
+__index.tsx__
+```typescript
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+
+ReactDOM.render(
+  <span>Hello World</span>,
+  document.getElementById('root')
+);
+```
+
+Run typescript compiler to compile `index.tsx`:
+
+    npx tsc
+
+Look at output in `src/index.js`.
+
+Open browser and navigate to page. Look for error in console.
+
 # Initial webpack usage
+
+Problem is that we do not have a way to load modules yet. You need some sort of module loader to work properly with typescript.
+Therefore, install webpack:
+
+    npm i --save-dev webpack webpack-cli webpack-dev-server
+
+Also install the javascript modules for `react` and `react-dom`:
+
+    npm i --save react react-dom
 
 Try to find out how to run `webpack-cli` correctly:
 
@@ -243,8 +293,25 @@ One of the usage patterns is:
 
     webpack-cli [options] <entries...> --output <output>
 
-Try to pack `index.js` into an app bundle javascript file:
+Try to pack `index.tsx` into an app bundle javascript file:
 
     npx webpack-cli .\src\index.js --output .\dist\app.bundle.js
 
-Check that the output bundle was created and how it looks like.
+Check that the output bundle was created and how it looks like in `dist/app.bundle.js`.
+
+Adapt `index.html` to load the new app bundle:
+
+__index.html__:
+```html
+<html>
+    <head>
+    </head>
+
+    <body>
+        <div id="root"></div>
+        <script src="dist/app.bundle.js"></script>
+    </body>
+</html>
+```
+
+Note that we do not need the script tags anymore. Its all in the app bundle now.
