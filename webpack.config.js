@@ -17,6 +17,7 @@ module.exports = {
     
     devServer: {
         publicPath: "/dist/",
+        https: true
     },
 
     devtool: "inline-source-map",

@@ -1,9 +1,9 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom";
 
-import { MyFirstComponent } from "./components/MyFirstComponent";
+import { App } from "./components/App";
 
 ReactDOM.render(
-  <MyFirstComponent greeting="Hello team!"/>,
+  <App/>,
   document.getElementById('root')
 );

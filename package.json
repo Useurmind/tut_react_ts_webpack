@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack-cli",
     "watch": "webpack-cli --watch",
-    "start": "nodemon -w ./webpack.config.js -w ./tsconfig.json --exec webpack-dev-server -- --https",
+    "start": "webpack-dev-server",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {

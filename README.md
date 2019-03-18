@@ -544,7 +544,7 @@ import * as React from "react";
 
 export interface IComponentSwitchState
 {
-    activeComponentIndex: number;
+    activeComponentIndex?: number;
 }
 
 export interface IComponentSwitchProps
@@ -552,18 +552,17 @@ export interface IComponentSwitchProps
     childTitles: string[];
 }
 
-export class ComponentSwitch implements React.Component<IComponentSwitchProps, IComponentSwitchState> 
+export class ComponentSwitch extends React.Component<IComponentSwitchProps, IComponentSwitchState> 
 {
     constructor(props: IComponentSwitchProps)
     {
         super(props);
 
         this.state = {
-            activeComponentIndex: null
         };
     }
 
-    private handlePageSelect(x): void
+    private handlePageSelect(x: any): void
     {
         this.setState({
             ...this.state,
@@ -573,6 +572,8 @@ export class ComponentSwitch implements React.Component<IComponentSwitchProps, I
 
     public render(): any
     {
+        const childArray = this.props.children as any[];
+
         return <div>
             <div>
             <span>Select page</span>
@@ -585,7 +586,7 @@ export class ComponentSwitch implements React.Component<IComponentSwitchProps, I
             </select>
             </div>
             <div>
-                { this.state.activeComponentIndex != null && this.children[this.state.activeComponentIndex] }
+                { this.state.activeComponentIndex != null && childArray[this.state.activeComponentIndex] }
             </div>
         </div>;
     }
@@ -606,7 +607,7 @@ export interface IIncrementorProps
     initialCount: number;
 }
 
-export class Incrementor implements React.Component<IIncrementorProps, IIncrementorState> 
+export class Incrementor extends React.Component<IIncrementorProps, IIncrementorState> 
 {
     constructor(props: IIncrementorProps)
     {
@@ -617,11 +618,11 @@ export class Incrementor implements React.Component<IIncrementorProps, IIncremen
         };
     }
 
-    private handleIncrement(x): void
+    private handleIncrement(x: any): void
     {
         this.setState({
             ...this.state,
-            currentCount: this.state.currentCount + x.target.value
+            currentCount: this.state.currentCount + 1
         });
     }
 
@@ -655,7 +656,7 @@ export interface IAppProps
     
 }
 
-export class App implements React.Component<IAppProps, IAppState> 
+export class App extends React.Component<IAppProps, IAppState> 
 {
     constructor(props: IAppProps)
     {
@@ -665,21 +666,14 @@ export class App implements React.Component<IAppProps, IAppState>
         };
     }
 
-    private handlePageSelect(x): void
-    {
-        this.setState({
-            ...this.state,
-            activeComponentIndex: x.target.value
-        });
-    }
-
     public render(): any
     {
         const titles = [
-            "My First Component"
+            "My First Component",
+            "Incrementor"
         ]
 
-        return <ComponentSwitch>
+        return <ComponentSwitch childTitles={titles}>
            <MyFirstComponent greeting="Hello Team!" />
            <Incrementor initialCount={0} />
         </ComponentSwitch>;
