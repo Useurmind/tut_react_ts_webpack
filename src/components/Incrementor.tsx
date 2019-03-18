@@ -1,4 +1,9 @@
 import * as React from "react";
+import { StoreSubscription } from "rfluxx";
+
+import { CounterStore, ICounterStore, ICounterStoreState } from "../store/CounterStore";
+
+const store = new CounterStore({});
 
 export interface IIncrementorState
 {
@@ -12,6 +17,8 @@ export interface IIncrementorProps
 
 export class Incrementor extends React.Component<IIncrementorProps, IIncrementorState> 
 {
+    private subscription: StoreSubscription<ICounterStore, ICounterStoreState> = new StoreSubscription();
+
     constructor(props: IIncrementorProps)
     {
         super(props);
@@ -21,12 +28,27 @@ export class Incrementor extends React.Component<IIncrementorProps, IIncrementor
         };
     }
 
+    public componentDidMount()
+    {
+        this.subscription.subscribeStore(
+            store,
+            state =>
+            {
+                this.setState({
+                    ...this.state,
+                    currentCount: state.counter
+                });
+            });
+    }
+
+    public componentWillUnmount()
+    {
+        this.subscription.unsubscribe();
+    }
+
     private handleIncrement(x: any): void
     {
-        this.setState({
-            ...this.state,
-            currentCount: this.state.currentCount + 1
-        });
+        store.incrementCounter.trigger(null);
     }
 
     public render(): any

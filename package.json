@@ -33,6 +33,7 @@
     "http-server": "^0.11.1",
     "local-web-server": "^2.6.1",
     "react": "^16.8.4",
-    "react-dom": "^16.8.4"
+    "react-dom": "^16.8.4",
+    "rfluxx": "^1.0.3"
   }
 }

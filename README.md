@@ -683,4 +683,170 @@ export class App extends React.Component<IAppProps, IAppState>
 
 Show how state is preserved using a store
 
+    npm i --save rfluxx
+
+Create a store for the incrementor:
+
+__src/stores/CounterStore.ts__
+```typescript
+import { IAction, IStoreOptions, Store } from "rfluxx";
+
+export interface ICounterStoreState
+{
+    counter: number;
+}
+
+export interface ICounterStoreOptions extends IStoreOptions<ICounterStoreState>
+{
+
+}
+
+export interface ICounterStore
+{
+    incrementCounter: IAction<any>;
+}
+
+export class CounterStore extends Store<ICounterStoreState> implements ICounterStore
+{
+    public readonly incrementCounter: IAction<any>;
+
+    constructor(private options: ICounterStoreOptions)
+    {
+        super({
+            ...options,
+            initialState: {
+                counter: 0
+            }
+        });
+
+        this.incrementCounter = this.createActionAndSubscribe<any>(x => this.onIncrementCounter());
+    }
+
+    private onIncrementCounter(): void 
+    {
+        this.setState({
+            ...this.state,
+            counter: this.state.counter + 1
+        })
+    }
+}
+```
+
+__src/components/Incrementor.tsx__
+```typescript
+import * as React from "react";
+import { StoreSubscription } from "rfluxx";
+
+import { CounterStore, ICounterStore, ICounterStoreState } from "../store/CounterStore";
+
+const store = new CounterStore({});
+
+export interface IIncrementorState
+{
+    currentCount: number;
+}
+
+export interface IIncrementorProps
+{
+    initialCount: number;
+}
+
+export class Incrementor extends React.Component<IIncrementorProps, IIncrementorState> 
+{
+    private subscription: StoreSubscription<ICounterStore, ICounterStoreState> = new StoreSubscription();
+
+    constructor(props: IIncrementorProps)
+    {
+        super(props);
+
+        this.state = {
+            currentCount: props.initialCount
+        };
+    }
+
+    public componentDidMount()
+    {
+        this.subscription.subscribeStore(
+            store,
+            state =>
+            {
+                this.setState({
+                    ...this.state,
+                    currentCount: state.counter
+                });
+            });
+    }
+
+    public componentWillUnmount()
+    {
+        this.subscription.unsubscribe();
+    }
+
+    private handleIncrement(x: any): void
+    {
+        store.incrementCounter.trigger(null);
+    }
+
+    public render(): any
+    {
+        return <div>
+            <div>Current count: {this.state.currentCount}</div>
+            <div>
+                <button onClick={x => this.handleIncrement(x)}>Increment</button>
+            </div>
+        </div>;
+    }
+}
+```
+
 ### Fetch 
+
+Fetch the initial count from a random api via https://www.random.org/integers/?num=1&min=1&max=50&col=1&base=10&format=plain&rnd=new
+
+See https://developer.mozilla.org/de/docs/Web/API/Fetch_API.
+
+__src/components/Incrementor.tsx__
+```typescript
+// ...
+
+const store = new CounterStore({
+    fetcher: new ObservableFetcher()
+});
+
+// ...
+
+```
+
+__src/store/CounterStore.ts__
+```typescript
+// ...
+
+export interface ICounterStoreOptions extends IInjectedStoreOptions
+{
+
+}
+
+// ...
+
+export class CounterStore extends Store<ICounterStoreState> implements ICounterStore
+{    
+    // ...
+
+    constructor(private options: ICounterStoreOptions)
+    {        
+        // ...
+
+        // load initial random value for counter
+        this.fetch("https://www.random.org/integers/?num=1&min=1&max=50&col=1&base=10&format=plain&rnd=new")
+            .subscribe(response => {
+                response.json()
+                        .then(json => {
+                            this.setState({
+                                ...this.state,
+                                counter: json
+                            })
+                        });
+            });
+    }
+
+```
