@@ -92,7 +92,7 @@ __index.html__:
 
     <body>
         <div id="root"></div>
-        <script src="dist/app.bundle.js"></script>
+        <script src="src/index.js"></script>
     </body>
 </html>
 ```
@@ -104,20 +104,6 @@ ReactDOM.render(
     document.getElementById('root')
   );
 ```
-
-Try to find out how to run `webpack-cli` correctly:
-
-    npx webpack-cli --help
-
-One of the usage patterns is:
-
-    webpack-cli [options] <entries...> --output <output>
-
-Try to pack `index.js` into an app bundle javascript file:
-
-    npx webpack-cli .\src\index.js --output .\dist\app.bundle.js
-
-Check that the output bundle was created and how it looks like.
 
 ## Run the initial website with some webserver
 
@@ -139,9 +125,19 @@ Check that chrome allows the connection now
 Check output is Hello World.
 Look in the developer tools how the page is loaded.
 
+# Commit your changes
+
+One step done and working, please commit your changes.
+
 ## Install typescript, react and webpack in your project
 
-Nice but ugly and small. To scale we need some additional stuff.
+Nice but ugly and small.
+
+- No modules used actually
+- No type checking
+- No jsx used
+
+To scale we need some additional stuff.
 
 Install typescript and webpack as dev dependencies
 
@@ -236,3 +232,19 @@ A `tsconfig.json` similar to this will be created:
   }
 }
 ```
+
+# Initial webpack usage
+
+Try to find out how to run `webpack-cli` correctly:
+
+    npx webpack-cli --help
+
+One of the usage patterns is:
+
+    webpack-cli [options] <entries...> --output <output>
+
+Try to pack `index.js` into an app bundle javascript file:
+
+    npx webpack-cli .\src\index.js --output .\dist\app.bundle.js
+
+Check that the output bundle was created and how it looks like.
