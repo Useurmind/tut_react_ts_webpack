@@ -1,7 +1,9 @@
 var path = require("path");
 
 module.exports = {
-    entry: "./src/index.tsx",
+    entry: {
+        app: "./src/index.tsx"
+    },
 
     resolve: {
         // Add `.ts` and `.tsx` as a resolvable extension.
@@ -38,7 +40,7 @@ module.exports = {
 
     mode: "development",
     output: {
-        filename: "app.bundle.js",
+        filename: "[name].bundle.js",
         path: path.resolve(__dirname, "dist")
     }
 }

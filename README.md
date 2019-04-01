@@ -1365,3 +1365,225 @@ import * as styles from "./Incrementor.css";
 
 // ...
 ```
+
+## Unit testing with karma
+
+### Install and configure karma
+
+Install the karma unit test runner
+
+    npm i --save-dev karma karma-chrome-launcher karma-jasmine karma-spec-reporter karma-webpack jasmine @types/jasmine
+
+Create a karma config file:
+
+__karma.conf.js__
+```javascript
+var webpack = require("webpack");
+
+module.exports = function(config) {
+  config.set({
+
+    // base path that will be used to resolve all patterns (eg. files, exclude)
+    basePath: '',
+
+
+    // frameworks to use
+    // available frameworks: https://npmjs.org/browse/keyword/karma-adapter
+    frameworks: ['jasmine'],
+
+    // add mime type for typescript so chrome will load it
+    mime: {
+      'text/x-typescript': ['ts','tsx']
+    },
+
+    // list of files / patterns to load in the browser
+    files: [
+      'test/**/*Spec.ts'
+    ],
+
+
+    // list of files / patterns to exclude
+    exclude: [
+    ],
+
+
+    // preprocess matching files before serving them to the browser
+    // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
+    preprocessors: {
+      // add webpack as preprocessor
+      'test/**/*Spec.ts': [ 'webpack' ]
+    },
+
+    webpack: require("./webpack.config.js"),
+
+    // test results reporter to use
+    // possible values: 'dots', 'progress'
+    // available reporters: https://npmjs.org/browse/keyword/karma-reporter
+    reporters: ["spec"],
+
+    // web server port
+    port: 9876,
+
+
+    // enable / disable colors in the output (reporters and logs)
+    colors: true,
+
+
+    // level of logging
+    // possible values: config.LOG_DISABLE || config.LOG_ERROR || config.LOG_WARN || config.LOG_INFO || config.LOG_DEBUG
+    logLevel: config.LOG_INFO,
+
+
+    // enable / disable watching file and executing tests whenever any file changes
+    autoWatch: true,
+
+
+    // start these browsers
+    // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
+    browsers: ["Chrome"],
+
+    // Continuous Integration mode
+    // if true, Karma captures browsers, runs the tests and exits
+    singleRun: false,
+
+    // Concurrency level
+    // how many browser should be started simultaneous
+    concurrency: Infinity
+  })
+}
+```
+
+Add a first test file:
+
+__test/MySpec.ts:__
+```typescript
+describe("My Test", () => {
+    it("should be so", () => {
+        expect(2 + 2).toEqual(4);
+    });
+
+    it("but not so", () => {
+        expect(2 + 2).toEqual(3);
+    });
+});
+```
+
+In `package.json` configure the test script
+
+__package.json:__
+```json
+{
+  // ...
+  "scripts": {
+    "build": "webpack-cli",
+    "watch": "webpack-cli --watch",
+    "start": "webpack-dev-server --https",
+    "test": "karma start"
+  },
+  // ...
+}
+```
+
+The following error will be thrown
+
+```
+ERROR in chunk test\MySpec [entry]
+app.bundle.js
+Conflict: Multiple chunks emit assets to the same filename app.bundle.js (chunks main and test\MySpec)
+```
+
+This means we need to make the bundle creation name aware.
+
+__webpack.config.js:__
+```javascript
+// ...
+
+module.exports = {
+    entry: {
+        app: "./src/index.tsx"
+    },
+
+    // ...
+
+    output: {
+        filename: "[name].bundle.js",
+        path: path.resolve(__dirname, "dist")
+    }
+}
+```
+
+See that karma now executes the test and shows the results.
+
+### Test your store
+
+Create a test spec for the store we created
+
+__test/CounterStoreSpec:__
+```typescript
+import { CounterStore } from "../src/store/CounterStore";
+
+describe("CounterStore", () => {
+    let store: CounterStore = new CounterStore({});
+    beforeEach(()=> {
+        store = new CounterStore({
+            turnOffInitOnStart: true
+        });
+    })    
+
+    it("initial counter should be zero", () => {
+        store.subscribe(x => {
+            expect(x.counter).toEqual(0);
+        });
+    });
+
+    it("after calling increment counter is one", () => {
+        store.incrementCounter.trigger(null);
+        store.subscribe(x => {
+            expect(x.counter).toEqual(1);
+        });
+    });
+});
+```
+
+Make store configurable to not load random counter at start:
+
+__src/store/CounterStore.ts:__
+```typescript
+// ...
+
+export interface ICounterStoreOptions extends IInjectedStoreOptions
+{
+    turnOffInitOnStart?: boolean;
+}
+
+// ...
+
+export class CounterStore // ...
+{
+    // ...
+
+    constructor(private options: ICounterStoreOptions)
+    {
+        // ...
+
+        if(!this.options || !this.options.turnOffInitOnStart) {
+            this.onInitialize();
+        }
+    }
+
+    private onInitialize(): void 
+    {
+        // load initial random value for counter
+        this.fetch("https://www.random.org/integers/?num=1&min=1&max=50&col=1&base=10&format=plain&rnd=new")
+            .subscribe(response => {
+                response.json()
+                        .then(json => {
+                            this.setState({
+                                ...this.state,
+                                counter: json
+                            })
+                        });
+            });
+    }
+}
+```

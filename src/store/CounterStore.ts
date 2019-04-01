@@ -7,7 +7,7 @@ export interface ICounterStoreState
 
 export interface ICounterStoreOptions extends IInjectedStoreOptions
 {
-
+    turnOffInitOnStart?: boolean;
 }
 
 export interface ICounterStore extends IStore<ICounterStoreState>
@@ -30,6 +30,21 @@ export class CounterStore extends Store<ICounterStoreState> implements ICounterS
 
         this.incrementCounter = this.createActionAndSubscribe<any>(x => this.onIncrementCounter());
 
+        if(!this.options || !this.options.turnOffInitOnStart) {
+            this.onInitialize();
+        }
+    }
+
+    private onIncrementCounter(): void 
+    {
+        this.setState({
+            ...this.state,
+            counter: this.state.counter + 1
+        })
+    }
+
+    private onInitialize(): void 
+    {
         // load initial random value for counter
         this.fetch("https://www.random.org/integers/?num=1&min=1&max=50&col=1&base=10&format=plain&rnd=new")
             .subscribe(response => {
@@ -41,13 +56,5 @@ export class CounterStore extends Store<ICounterStoreState> implements ICounterS
                             })
                         });
             });
-    }
-
-    private onIncrementCounter(): void 
-    {
-        this.setState({
-            ...this.state,
-            counter: this.state.counter + 1
-        })
     }
 }
