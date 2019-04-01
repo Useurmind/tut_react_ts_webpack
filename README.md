@@ -689,19 +689,19 @@ Create a store for the incrementor:
 
 __src/stores/CounterStore.ts__
 ```typescript
-import { IAction, IStoreOptions, Store } from "rfluxx";
+import { IAction, IStoreOptions, Store, IStore } from "rfluxx";
 
 export interface ICounterStoreState
 {
     counter: number;
 }
 
-export interface ICounterStoreOptions extends IStoreOptions<ICounterStoreState>
+export interface ICounterStoreOptions
 {
 
 }
 
-export interface ICounterStore
+export interface ICounterStore extends IStore<ICounterStoreState> 
 {
     incrementCounter: IAction<any>;
 }
