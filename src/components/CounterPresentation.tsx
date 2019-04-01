@@ -1,31 +1,29 @@
 import * as React from "react";
-import { ObservableFetcher, StoreSubscription } from "rfluxx";
+import { StoreSubscription, resolveStore, ObservableFetcher } from "rfluxx";
 
 import { CounterStore, ICounterStore, ICounterStoreState } from "../store/CounterStore";
 
-import * as styles from "./Incrementor.css";
+import * as styles from "./CounterPresentation.css";
 
-export interface IIncrementorState
+export interface ICounterPresentationState
 {
-    currentCount: number;
+    currentCount?: number;
 }
 
-export interface IIncrementorProps
+export interface ICounterPresentationProps
 {
     store: ICounterStore;
-    initialCount: number;
 }
 
-export class Incrementor extends React.Component<IIncrementorProps, IIncrementorState> 
+export class CounterPresentation extends React.Component<ICounterPresentationProps, ICounterPresentationState> 
 {
     private subscription: StoreSubscription<ICounterStore, ICounterStoreState> = new StoreSubscription();
 
-    constructor(props: IIncrementorProps)
+    constructor(props: ICounterPresentationProps)
     {
         super(props);
 
         this.state = {
-            currentCount: props.initialCount
         };
     }
 
@@ -33,11 +31,11 @@ export class Incrementor extends React.Component<IIncrementorProps, IIncrementor
     {
         this.subscription.subscribeStore(
             this.props.store,
-            state =>
+            storeState =>
             {
                 this.setState({
                     ...this.state,
-                    currentCount: state.counter
+                    currentCount: storeState.counter
                 });
             });
     }
@@ -47,18 +45,10 @@ export class Incrementor extends React.Component<IIncrementorProps, IIncrementor
         this.subscription.unsubscribe();
     }
 
-    private handleIncrement(x: any): void
-    {
-        this.subscription.store.incrementCounter.trigger(null);
-    }
-
     public render(): any
     {
-        return <div className={styles.Incrementor}>
+        return <div className={styles.CounterPresentation}>
             <div className={styles.Counter}>Current count: {this.state.currentCount}</div>
-            <div>
-                <button className={styles.Button} onClick={x => this.handleIncrement(x)}>Increment</button>
-            </div>
         </div>;
     }
 }

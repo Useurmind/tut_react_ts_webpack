@@ -6,7 +6,7 @@
   "scripts": {
     "build": "webpack-cli",
     "watch": "webpack-cli --watch",
-    "start": "webpack-dev-server",
+    "start": "webpack-dev-server --https",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -22,7 +22,10 @@
   "devDependencies": {
     "@types/react": "^16.8.8",
     "@types/react-dom": "^16.8.2",
+    "css-loader": "^2.1.1",
+    "css-modules-typescript-loader": "^1.1.1",
     "nodemon": "^1.18.10",
+    "style-loader": "^0.23.1",
     "ts-loader": "^5.3.3",
     "typescript": "^3.3.3333",
     "webpack": "^4.29.6",

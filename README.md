@@ -731,6 +731,7 @@ export class CounterStore extends Store<ICounterStoreState> implements ICounterS
     }
 }
 ```
+Update the incrementor component to use the store.
 
 __src/components/Incrementor.tsx__
 ```typescript
@@ -784,7 +785,7 @@ export class Incrementor extends React.Component<IIncrementorProps, IIncrementor
 
     private handleIncrement(x: any): void
     {
-        store.incrementCounter.trigger(null);
+        this.subscription.store.incrementCounter.trigger(null);
     }
 
     public render(): any
@@ -798,6 +799,188 @@ export class Incrementor extends React.Component<IIncrementorProps, IIncrementor
     }
 }
 ```
+
+Check that the state is preserved when switching the component.
+
+### Show the same state in different components
+
+Add a component `CounterPresentation` to show the same counter one more time
+
+__src/components/CounterPresentation.tsx__:
+```typescript
+import * as React from "react";
+import { StoreSubscription, resolveStore, ObservableFetcher } from "rfluxx";
+
+import { CounterStore, ICounterStore, ICounterStoreState } from "../store/CounterStore";
+
+const store = new CounterStore({
+    fetcher: new ObservableFetcher()
+});
+
+export interface ICounterPresentationState
+{
+    currentCount?: number;
+}
+
+export interface ICounterPresentationProps
+{
+}
+
+export class CounterPresentation extends React.Component<ICounterPresentationProps, ICounterPresentationState> 
+{
+    private subscription: StoreSubscription<ICounterStore, ICounterStoreState> = new StoreSubscription();
+
+    constructor(props: ICounterPresentationProps)
+    {
+        super(props);
+
+        this.state = {
+        };
+    }
+
+    public componentDidMount()
+    {
+        this.subscription.subscribeStore(
+            store,
+            storeState =>
+            {
+                this.setState({
+                    ...this.state,
+                    currentCount: storeState.counter
+                });
+            });
+    }
+
+    public componentWillUnmount()
+    {
+        this.subscription.unsubscribe();
+    }
+
+    public render(): any
+    {
+        return <div>
+            <div>Current count: {this.state.currentCount}</div>
+        </div>;
+    }
+}
+```
+
+Add the counter presentation to your `App`:
+
+__src/components/App.tsx__:
+```typescript
+export class App // ...
+{
+    // ...
+
+    public render(): any
+    {
+        // ...
+
+        return <div>
+            <CounterPresentation />
+            <ComponentSwitch childTitles={titles}>
+                <MyFirstComponent greeting="Hello Team!" />
+                <Incrementor initialCount={0} />
+            </ComponentSwitch>
+        </div>;
+    }
+}
+```
+
+See how the state still differs.
+
+Extract store as injected prop into the app.
+
+__src/components/App.tsx__:
+```typescript
+const store = new CounterStore({
+    fetcher: new ObservableFetcher()
+});
+
+// ...
+
+export class App // ...
+{
+    // ...
+
+    public render(): any
+    {
+        // ...
+
+        return <div>
+            <CounterPresentation store={store} />
+            <ComponentSwitch childTitles={titles}>
+                <MyFirstComponent greeting="Hello Team!" />
+                <Incrementor initialCount={0} store={store} />
+            </ComponentSwitch>
+        </div>;
+    }
+}
+```
+
+__src/components/Incrementor.tsx__:
+```typescript
+// ...
+
+export interface IIncrementorProps
+{
+    store: ICounterStore;
+    initialCount: number;
+}
+
+export class Incrementor // ...
+{
+    // ...
+
+    public componentDidMount()
+    {
+        this.subscription.subscribeStore(
+            this.props.store,
+            state =>
+            {
+                this.setState({
+                    ...this.state,
+                    currentCount: state.counter
+                });
+            });
+    }
+
+    // ...
+}
+```
+
+__src/components/CounterPresentation.tsx__:
+```typescript
+// ...
+
+export interface ICounterPresentationProps
+{
+    store: ICounterStore;
+}
+
+export class CounterPresentation // ...
+{
+    // ...
+
+    public componentDidMount()
+    {
+        this.subscription.subscribeStore(
+            this.props.store,
+            storeState =>
+            {
+                this.setState({
+                    ...this.state,
+                    currentCount: storeState.counter
+                });
+            });
+    }
+    
+    // ...
+}
+```
+
+See how both components show the same counter.
 
 ### Fetch 
 
@@ -849,4 +1032,336 @@ export class CounterStore extends Store<ICounterStoreState> implements ICounterS
             });
     }
 
+```
+
+## Styling with CSS
+
+### Classic CSS style sheets
+
+Add a css stylesheet in `assets/styles.css`.
+
+__assets/styles.css:__
+```css
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: blanchedalmond;
+}
+
+/*CSS for CounterPresentation.tsx*/
+.CounterPresentation{
+    background-color: aqua;
+}
+
+.Counter {
+    font-weight: bolder;
+    font-size: 20px;
+}
+
+/*CSS for Incrementor.tsx*/
+.Incrementor {
+    padding: 5px;
+    background-color: red;
+}
+
+.Counter {
+    font-weight: bold;
+}
+
+.Button {
+    margin: 5px;
+}
+```
+
+__index.html:__
+```html
+<html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="assets/styles.css">
+    </head>
+
+    // ..
+</html>
+```
+
+__src/components/Incrementor.tsx:__
+```typescript
+// ...
+
+export class Incrementor // ...
+{
+    // ...
+
+    public render(): any
+    {
+        return <div className="Incrementor">
+            <div className="Counter">Current count: {this.state.currentCount}</div>
+            <div>
+                <button className="Button" onClick={x => this.handleIncrement(x)}>Increment</button>
+            </div>
+        </div>;
+    }
+}
+```
+
+__src/components/CounterPresentation.tsx:__
+```typescript
+// ...
+
+
+export class CounterPresentation // ...
+{
+    // ...
+
+    public render(): any
+    {
+        return <div className="CounterPresentation">
+            <div className="Counter">Current count: {this.state.currentCount}</div>
+        </div>;
+    }
+}
+```
+
+See that the app is styled but that classes with the same name overwrite each other.
+
+### CSS Modules
+
+Distribute the CSS into three separate modules.
+
+__src/components/App.css:__
+```css
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: blanchedalmond;
+}
+```
+
+__src/components/CounterPresentation.css:__
+```css
+.CounterPresentation{
+    background-color: aqua;
+}
+
+.Counter {
+    font-weight: bolder;
+    font-size: 20px;
+}
+```
+
+__src/components/Incrementor.css:__
+```css
+.Incrementor {
+    padding: 5px;
+    background-color: red;
+}
+
+.Counter {
+    font-weight: bold;
+}
+
+.Button {
+    margin: 5px;
+}
+```
+
+Remove the global stylesheet from `index.html`.
+Require the style sheets in each module.
+
+__src/components/App.tsx:__
+```typescript
+// ...
+
+declare const require: any;
+const styles = require("./App.css"); 
+
+// ...
+```
+
+__src/components/CounterPresentation.tsx:__
+```typescript
+// ...
+
+declare const require: any;
+const styles = require("./CounterPresentation.css"); 
+
+// ...
+```
+
+__src/components/Incrementor.tsx:__
+```typescript
+// ...
+
+declare const require: any;
+const styles = require("./Incrementor.css"); 
+
+// ...
+```
+
+Configure webpack to load css.
+
+Install https://github.com/webpack-contrib/css-loader   
+
+    npm i --save-dev css-loader style-loader
+
+__webpack.config.js:__
+```javascript
+var path = require("path");
+
+module.exports = {
+    // ...
+
+    module: {
+        rules: [
+            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+            { test: /\.tsx?$/, loader: "ts-loader" },
+            { 
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader'],
+            }
+        ]
+    },
+    
+    // ...
+}
+```
+
+See how classes are added as style elements into the head of the website.
+Check that classes are still global.
+
+Introduce css module by configuring `css-loader`:
+
+__webpack.config.js:__
+```javascript
+// ...
+
+module.exports = {
+    // ...
+
+    module: {
+        rules: [
+            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+            { test: /\.tsx?$/, loader: "ts-loader" },
+            { 
+                test: /\.css$/,
+                use: [
+                    'style-loader', 
+                    {
+                        loader: 'css-loader',
+                        query: {
+                            modules: true,
+                            localIdentName: '[name]__[local]___[hash:base64:5]'
+                        }
+                    }
+                ],
+            }
+        ]
+    },
+    
+    // ...
+}
+```
+
+Check that classes dont work anymore.
+
+Use styles object in code.
+
+__src/components/CounterPresentation.tsx:__
+```typescript
+// ...
+
+export class CounterPresentation // ...
+{
+    // ...
+
+    public render(): any
+    {
+        return <div className={styles.CounterPresentation}>
+            <div className={styles.Counter}>Current count: {this.state.currentCount}</div>
+        </div>;
+    }
+}
+```
+
+__src/components/Incrementor.tsx:__
+```typescript
+// ...
+
+export class Incrementor // ...
+{
+    // ...
+
+    public render(): any
+    {
+        return <div className={styles.Incrementor}>
+            <div className={styles.Counter}>Current count: {this.state.currentCount}</div>
+            <div>
+                <button className={styles.Button} onClick={x => this.handleIncrement(x)}>Increment</button>
+            </div>
+        </div>;
+    }
+}
+```
+
+Check that styles are applied correctly.
+
+- Classes are not global anymore
+- Classes have name prefixes and hashes
+
+### Introduce typings for css modules
+
+Currently no code completion and type checking for css modules.
+
+Configure webpack with *.d.ts generation for css modules.
+
+    npm i --save-dev css-modules-typescript-loader
+
+__webpack.config.js:__
+```javascript
+// ...
+
+module.exports = {
+    // ...
+
+    module: {
+        rules: [
+            // all files with a `.ts` or `.tsx` extension will be handled by `ts-loader`
+            { test: /\.tsx?$/, loader: "ts-loader" },
+            { 
+                test: /\.css$/,
+                use: [
+                    'style-loader', 
+                    { loader: "css-modules-typescript-loader" },
+                    {
+                        loader: 'css-loader',
+                        query: {
+                            modules: true,
+                            localIdentName: '[name]__[local]___[hash:base64:5]'
+                        }
+                    }
+                ],
+            }
+        ]
+    },
+    
+    // ...
+}
+```
+
+Change require statements to typescript imports and check that code completion works.
+
+__src/components/CounterPresentation.tsx:__
+```typescript
+// ...
+
+import * as styles from "./CounterPresentation.css";
+
+// ...
+```
+
+__src/components/Incrementor.tsx:__
+```typescript
+// ...
+
+import * as styles from "./Incrementor.css";
+
+// ...
 ```

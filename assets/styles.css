@@ -1,0 +1,28 @@
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: blanchedalmond;
+}
+
+/*CSS for CounterPresentation.tsx*/
+.CounterPresentation{
+    background-color: aqua;
+}
+
+.Counter {
+    font-weight: bolder;
+    font-size: 20px;
+}
+
+/*CSS for Incrementor.tsx*/
+.Incrementor {
+    padding: 5px;
+    background-color: red;
+}
+
+.Counter {
+    font-weight: bold;
+}
+
+.Button {
+    margin: 5px;
+}
